@@ -39,12 +39,14 @@ class CatalogueController extends Controller
 
     public function show(string $id)
     {
-        //
+
     }
 
     public function edit(string $id)
     {
-        //
+        $model = Catalogue::findOrFail($id);
+        $catalogues = Catalogue::with("children")->whereNull("parent_id")->get();
+        return view(self::PATH_VIEW . __FUNCTION__, compact("model", "catalogues"));
     }
 
     public function update(Request $request, string $id)

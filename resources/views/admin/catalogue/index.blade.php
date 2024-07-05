@@ -64,8 +64,13 @@
                                         @php
                                             $url = $item->cover;
 
-                                            if (!\Str::contains($url, 'http')) {
-                                                $url = \Storage::url($url);
+                                            if ($url != null) {
+                                                if (!\Str::contains($url, 'http')) {
+                                                    $url = \Storage::url($url);
+                                                }
+                                            } else {
+                                                $url =
+                                                    'https://lh4.googleusercontent.com/proxy/z44RbfM9MMdI-bVIgyw9sKy1ErMYbKCe3zqwwgNxGl-pv65QEJyRx5dURuTaS_qM1V5PVz-nGHf1cmza8pjXvTD92B5rMG0WBrI';
                                             }
                                         @endphp
                                         <img style="width: 100px; object-fit: cover;" src="{{ $url }}"
@@ -138,7 +143,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 
-    <script src="{{ asset('theme/admin/assets/js/pages/datatables.init.js') }}"></script>
-    <!-- App js -->
-    <script src="{{ asset('theme/admin/assets/js/app.js') }}"></script>
+    <script>
+        new DataTable("#example", {
+            order: [
+                [0, 'desc']
+            ]
+        });
+    </script>
 @endsection

@@ -10,19 +10,23 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link menu-link" href="#catalogue" data-bs-toggle="collapse" role="button"
-                   aria-expanded="false" aria-controls="catalogue">
-                    <i class="ri-book-fill"></i> <span>Catalogue</span>
-                </a>
-                <div class="collapse menu-dropdown" id="catalogue">
-                    <ul class="nav nav-sm flex-column">
-                        @foreach ($data as $parent)
-                            @include('admin.catalogue.nested-catalogue', ['catalogue' => $parent])
-                        @endforeach
-                    </ul>
-                </div>
-            </li>
+            @foreach ($menuItems as $menuItem)
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#{{ $menuItem['id'] }}" data-bs-toggle="collapse" role="button"
+                        aria-expanded="false" aria-controls="{{ $menuItem['id'] }}">
+                        <i class="{{ $menuItem['icon'] }}"></i> <span>{{ $menuItem['name'] }}</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="{{ $menuItem['id'] }}">
+                        <ul class="nav nav-sm flex-column">
+                            @if (isset($menuItem['data']))
+                                @foreach ($menuItem['data'] as $parent)
+                                    @include('admin.catalogue.nested-catalogue', ['catalogue' => $parent])
+                                @endforeach
+                            @endif
+                        </ul>
+                    </div>
+                </li>
+            @endforeach
         </ul>
     </div>
 </div>
