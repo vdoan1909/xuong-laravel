@@ -1,6 +1,6 @@
 @extends('admin.layout.master')
 
-@section('title', 'List Catalogue')
+@section('title', 'List Size')
 
 @section('style-libs')
     <!--datatable css-->
@@ -27,9 +27,9 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0">Catalogue</h4>
+                <h4 class="mb-sm-0">Size</h4>
 
-                <a href="{{ Route('admin.catalogue.create') }}" class="btn btn-primary">Create a new catalogue</a>
+                <a href="{{ Route('admin.size.create') }}" class="btn btn-primary">Create a new size</a>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">List Catalogues</h5>
+                    <h5 class="card-title mb-0">List Size</h5>
                 </div>
                 <div class="card-body">
                     <table id="example" class="table table-bordered dt-responsive nowrap table-striped align-middle"
@@ -47,9 +47,6 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
-                                <th style="width: 100px;">Cover</th>
-                                <th>Parent</th>
-                                <th>Is Active</th>
                                 <th>Manage</th>
                             </tr>
                         </thead>
@@ -59,28 +56,6 @@
                                     <td>{{ $item->id }}</td>
                                     <td>{{ $item->name }}</td>
                                     <td>
-                                        @php
-                                            $url = $item->cover;
-
-                                            if ($url != null) {
-                                                if (!\Str::contains($url, 'http')) {
-                                                    $url = \Storage::url($url);
-                                                }
-                                            } else {
-                                                $url =
-                                                    'https://lh4.googleusercontent.com/proxy/z44RbfM9MMdI-bVIgyw9sKy1ErMYbKCe3zqwwgNxGl-pv65QEJyRx5dURuTaS_qM1V5PVz-nGHf1cmza8pjXvTD92B5rMG0WBrI';
-                                            }
-                                        @endphp
-                                        <img style="width: 100px; object-fit: cover;" src="{{ $url }}"
-                                            alt="">
-                                    </td>
-                                    <td>{{ $item->parent?->name ?? 'No' }}</td>
-                                    <td>
-                                        {!! $item->is_active
-                                            ? '<span class="badge bg-primary">Is active</span>'
-                                            : '<span class="badge bg-danger">Not active</span>' !!}
-                                    </td>
-                                    <td>
                                         <div class="dropdown d-inline-block">
                                             <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
                                                 data-bs-toggle="dropdown" aria-expanded="false">
@@ -88,21 +63,21 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a href="{{ Route('admin.catalogue.show', $item->id) }}"
+                                                    <a href="{{ Route('admin.size.show', $item->id) }}"
                                                         class="dropdown-item">
                                                         <i class="ri-eye-fill align-bottom me-2 text-muted"></i>
                                                         View
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="{{ Route('admin.catalogue.edit', $item->id) }}"
+                                                    <a href="{{ Route('admin.size.edit', $item->id) }}"
                                                         class="dropdown-item edit-item-btn">
                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                         Edit
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <form action="{{ Route('admin.catalogue.destroy', $item->id) }}"
+                                                    <form action="{{ Route('admin.size.destroy', $item->id) }}"
                                                         method="POST">
                                                         @csrf
                                                         @method('DELETE')

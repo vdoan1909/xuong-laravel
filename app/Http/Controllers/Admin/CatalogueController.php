@@ -14,13 +14,13 @@ class CatalogueController extends Controller
 
     public function index()
     {
-        $data = Catalogue::with(["parent", "children"])->get();
+        $data = Catalogue::with("parent")->get();
         return view(self::PATH_VIEW . __FUNCTION__, compact("data"));
     }
 
     public function create()
     {
-        $catalogues = Catalogue::with("children")->whereNull("parent_id")->get();
+        $catalogues = Catalogue::with("children")->get();
         return view(self::PATH_VIEW . __FUNCTION__, compact("catalogues"));
     }
 
@@ -29,33 +29,59 @@ class CatalogueController extends Controller
         $data = $request->except("cover");
         $data["is_active"] = $request->is_active ? 1 : 0;
 
-        if ($request->hasFile("cover")) {
-            $data["cover"] = Storage::put(self::PATH_UPDATE, $request->file("cover"));
+        $catalogue = Catalogue::create($data);
+
+        if ($catalogue) {
+            if ($request->hasFile('cover')) {
+                $path = Storage::put(self::PATH_UPDATE, $request->file('cover'));
+                $catalogue->update(['cover' => $path]);
+            }
         }
-
-        Catalogue::create($data);
         return redirect()->route("admin.catalogue.index")->with("success", "Create catalogue successfully");
-    }
-
-    public function show(string $id)
-    {
-
     }
 
     public function edit(string $id)
     {
         $model = Catalogue::findOrFail($id);
-        $catalogues = Catalogue::with("children")->whereNull("parent_id")->get();
+        // dd($model);
+        $catalogues = Catalogue::where('id', '!=', $model->id)->get();
         return view(self::PATH_VIEW . __FUNCTION__, compact("model", "catalogues"));
     }
 
     public function update(Request $request, string $id)
     {
-        //
+        $data = $request->except("cover");
+        $model = Catalogue::findOrFail($id);
+        $data["is_active"] = $request->is_active ? 1 : 0;
+
+        $model->update([
+            'name' => $data['name'],
+            'is_active' => $data['is_active'],
+        ]);
+
+        if ($request->hasFile('cover')) {
+            if ($model->cover && Storage::exists($model->cover)) {
+                Storage::delete($model->cover);
+            }
+
+            $data['cover'] = Storage::put(self::PATH_UPDATE, $request->file('cover'));
+
+            $model->update(['cover' => $data['cover']]);
+        }
+
+        return redirect()->route('admin.catalogue.index')->with('success', 'Update catalogue successfully');
     }
 
     public function destroy(string $id)
     {
-        //
+        $model = Catalogue::findOrFail($id);
+
+        $model->delete();
+
+        if ($model->cover && Storage::exists($model->cover)) {
+            Storage::delete($model->cover);
+        }
+
+        return back();
     }
 }

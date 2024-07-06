@@ -1,9 +1,8 @@
 @extends('admin.layout.master')
 
-@section('title', 'List Catalogue')
+@section('title', 'List Product')
 
 @section('style-libs')
-    <!--datatable css-->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
     <!--datatable responsive css-->
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
@@ -27,9 +26,9 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0">Catalogue</h4>
+                <h4 class="mb-sm-0">Product</h4>
 
-                <a href="{{ Route('admin.catalogue.create') }}" class="btn btn-primary">Create a new catalogue</a>
+                <a href="{{ Route('admin.product.create') }}" class="btn btn-primary">Create a new product</a>
             </div>
         </div>
     </div>
@@ -38,7 +37,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">List Catalogues</h5>
+                    <h5 class="card-title mb-0">List Product</h5>
                 </div>
                 <div class="card-body">
                     <table id="example" class="table table-bordered dt-responsive nowrap table-striped align-middle"
@@ -46,10 +45,19 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Name</th>
                                 <th style="width: 100px;">Cover</th>
-                                <th>Parent</th>
+                                <th>Name</th>
+                                <th>SKU</th>
+                                <th>Catalogue</th>
+                                <th>Price Regular</th>
+                                <th>Price Sale</th>
+                                <th>View</th>
                                 <th>Is Active</th>
+                                <th>Is Hot Deal</th>
+                                <th>Is Good Deal</th>
+                                <th>Is New</th>
+                                <th>Is Show Home</th>
+                                <th>Tags</th>
                                 <th>Manage</th>
                             </tr>
                         </thead>
@@ -57,28 +65,53 @@
                             @foreach ($data as $item)
                                 <tr class="text-center">
                                     <td>{{ $item->id }}</td>
-                                    <td>{{ $item->name }}</td>
                                     <td>
                                         @php
-                                            $url = $item->cover;
+                                            $url = $item->img_thumbnail;
 
-                                            if ($url != null) {
-                                                if (!\Str::contains($url, 'http')) {
-                                                    $url = \Storage::url($url);
-                                                }
-                                            } else {
-                                                $url =
-                                                    'https://lh4.googleusercontent.com/proxy/z44RbfM9MMdI-bVIgyw9sKy1ErMYbKCe3zqwwgNxGl-pv65QEJyRx5dURuTaS_qM1V5PVz-nGHf1cmza8pjXvTD92B5rMG0WBrI';
+                                            if (!\Str::contains($url, 'http')) {
+                                                $url = \Storage::url($url);
                                             }
                                         @endphp
+
                                         <img style="width: 100px; object-fit: cover;" src="{{ $url }}"
                                             alt="">
                                     </td>
-                                    <td>{{ $item->parent?->name ?? 'No' }}</td>
+                                    <td>{{ $item->name }}</td>
+                                    <td>{{ $item->sku }}</td>
+                                    <td>{{ $item->catalogue->name }}</td>
+                                    <td>{{ $item->price_regular }}</td>
+                                    <td>{{ $item->price_sale }}</td>
+                                    <td>{{ $item->view ?? 0 }}</td>
                                     <td>
                                         {!! $item->is_active
                                             ? '<span class="badge bg-primary">Is active</span>'
                                             : '<span class="badge bg-danger">Not active</span>' !!}
+                                    </td>
+                                    <td>
+                                        {!! $item->is_hot_deal
+                                            ? '<span class="badge bg-primary">Is hot deal</span>'
+                                            : '<span class="badge bg-danger">Not hot deal</span>' !!}
+                                    </td>
+                                    <td>
+                                        {!! $item->is_good_deal
+                                            ? '<span class="badge bg-primary">Is good deal</span>'
+                                            : '<span class="badge bg-danger">Not good deal</span>' !!}
+                                    </td>
+                                    <td>
+                                        {!! $item->is_new
+                                            ? '<span class="badge bg-primary">Is new</span>'
+                                            : '<span class="badge bg-danger">Not new</span>' !!}
+                                    </td>
+                                    <td>
+                                        {!! $item->is_show_home
+                                            ? '<span class="badge bg-primary">Is show home</span>'
+                                            : '<span class="badge bg-danger">Not show home</span>' !!}
+                                    </td>
+                                    <td>
+                                        @foreach ($item->tags as $tag)
+                                            <span class='badge bg-primary'>{{ $tag->name }}</span>
+                                        @endforeach
                                     </td>
                                     <td>
                                         <div class="dropdown d-inline-block">
@@ -88,21 +121,21 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a href="{{ Route('admin.catalogue.show', $item->id) }}"
+                                                    <a href="{{ Route('admin.product.show', $item->id) }}"
                                                         class="dropdown-item">
                                                         <i class="ri-eye-fill align-bottom me-2 text-muted"></i>
                                                         View
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="{{ Route('admin.catalogue.edit', $item->id) }}"
+                                                    <a href="{{ Route('admin.product.edit', $item->id) }}"
                                                         class="dropdown-item edit-item-btn">
                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                         Edit
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <form action="{{ Route('admin.catalogue.destroy', $item->id) }}"
+                                                    <form action="{{ Route('admin.product.destroy', $item->id) }}"
                                                         method="POST">
                                                         @csrf
                                                         @method('DELETE')

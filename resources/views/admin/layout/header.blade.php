@@ -42,14 +42,14 @@
                         aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
 
-                            @if (Auth::User()->image)
+                            {{-- @if (Auth::User()->image)
                                 <img class="rounded-circle header-profile-user"
                                     src="{{ \Storage::url(Auth::User()->image) }}" alt="Header Avatar">
-                            @else
+                            @else --}}
                                 <img class="rounded-circle header-profile-user"
                                     src="https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg"
                                     alt="Header Avatar">
-                            @endif
+                            {{-- @endif --}}
 
                             <span class="text-start ms-xl-2">
                                 <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
