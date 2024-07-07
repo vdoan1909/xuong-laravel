@@ -6,8 +6,11 @@ use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+
+Auth::routes();
 
 // Admin
 Route::prefix("admin")
@@ -80,10 +83,11 @@ Route::prefix("admin")
         });
     });
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::prefix("/")
+    ->as("client.")
+    ->group(function () {
+        Route::get('/', [HomeController::class, "index"])->name("index");
+        Route::get('product/{slug}', [HomeController::class, "show"])->name("show");
+    });
 
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
