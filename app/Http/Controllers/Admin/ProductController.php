@@ -107,12 +107,120 @@ class ProductController extends Controller
 
     public function edit(string $id)
     {
-        return view(self::PATH_VIEW . __FUNCTION__);
+        $product = Product::where("id", $id)->with(['catalogue', 'tags', 'galleries', 'variants'])->first();
+        // dd($product->variants);
+
+        $catalogues = Catalogue::query()->pluck('name', 'id')->all();
+        $colors = ProductColor::query()->pluck('name', 'id')->all();
+        $sizes = ProductSize::query()->pluck('name', 'id')->all();
+        $tags = Tag::query()->pluck('name', 'id')->all();
+
+        return view(self::PATH_VIEW . __FUNCTION__, compact('product', 'catalogues', 'colors', 'sizes', 'tags'));
     }
 
     public function update(Request $request, string $id)
     {
-        //
+        $product = Product::where("id", $id)->with(['catalogue', 'tags', 'galleries', 'variants'])->first();
+
+        // Dữ liệu sản phẩm
+        $dataProduct = $request->except(["img_thumbnail", "product_variants", "tags", "product_galleries"]);
+        $dataProduct["is_active"] = isset($dataProduct["is_active"]) ? 1 : 0;
+        $dataProduct["is_hot_deal"] = isset($dataProduct["is_hot_deal"]) ? 1 : 0;
+        $dataProduct["is_good_deal"] = isset($dataProduct["is_good_deal"]) ? 1 : 0;
+        $dataProduct["is_new"] = isset($dataProduct["is_new"]) ? 1 : 0;
+        $dataProduct["is_show_home"] = isset($dataProduct["is_show_home"]) ? 1 : 0;
+        $dataProduct["slug"] = Str::slug($dataProduct["name"]) . "-" . $dataProduct["sku"];
+
+        $dataProductVariants = $request->product_variants;
+
+        $dataProductTags = $request->tags;
+        $dataProductGalleries = $request->product_galleries ?: [];
+
+        try {
+            DB::beginTransaction();
+
+            $productImgThumbnailCurrent = $product->img_thumbnail;
+
+            if ($request->hasFile('img_thumbnail') && $request->file('img_thumbnail')) {
+                $dataProduct['img_thumbnail'] = Storage::put(self::PATH_UPLOAD, $request->file('img_thumbnail'));
+                $product->update(['img_thumbnail' => $dataProduct['img_thumbnail']]);
+            }else{
+                $dataProduct['img_thumbnail'] = $product->img_thumbnail;
+            }
+
+            $product->update($dataProduct);
+
+            foreach ($dataProductVariants as $key => $item) {
+                if ($item["quantity"] > 0) {
+                    $keyParts = explode("-", $key);
+                    $sizeID = $keyParts[0];
+                    $colorID = $keyParts[1];
+
+                    $item += ['product_id' => $product->id, 'product_size_id' => $sizeID, 'product_color_id' => $colorID];
+
+
+                    ProductVariant::updateOrCreate(
+                        [
+                            'product_id' => $product->id,
+                            'product_size_id' => $sizeID,
+                            'product_color_id' => $colorID,
+                            'quantity' => $item["quantity"]
+                        ],
+                        $item
+                    );
+                }
+            }
+
+            $product->tags()->sync($dataProductTags);
+
+            foreach ($dataProductGalleries as $item) {
+                $item += ['product_id' => $product->id];
+
+                ProductGallery::updateOrCreate(
+                    [
+                        'id' => $item['id']
+                    ],
+                    $item
+                );
+            }
+
+            DB::commit();
+
+            if (!empty($dataDeleteGalleries)) {
+                foreach ($dataDeleteGalleries as $id => $path) {
+                    ProductGallery::where('id', $id)->delete();
+
+                    if (!empty($path) && Storage::exists($path)) {
+                        Storage::delete($path);
+                    }
+                }
+            }
+
+            if (!empty($productImgThumbnailCurrent) && Storage::exists($productImgThumbnailCurrent)) {
+                Storage::delete($productImgThumbnailCurrent);
+            }
+
+            return back()->with('success', 'Thao tác thành công!');
+        } catch (\Exception $exception) {
+            DB::rollBack();
+
+            if (
+                !empty($dataProduct['img_thumbnail'])
+                && Storage::exists($dataProduct['img_thumbnail'])
+            ) {
+
+                Storage::delete($dataProduct['img_thumbnail']);
+            }
+
+            $dataHasImage = $dataProductVariants + $dataProductGalleries;
+            foreach ($dataHasImage as $item) {
+                if (!empty($item['image']) && Storage::exists($item['image'])) {
+                    Storage::delete($item['image']);
+                }
+            }
+
+            return back()->with('error', $exception->getMessage());
+        }
     }
 
     public function destroy(string $id)
