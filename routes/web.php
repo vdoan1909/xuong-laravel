@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -88,6 +90,18 @@ Route::prefix("/")
     ->group(function () {
         Route::get('/', [HomeController::class, "index"])->name("index");
         Route::get('product/{slug}', [HomeController::class, "show"])->name("show");
+
+        Route::prefix("cart")
+            ->as("cart.")
+            ->group(function () {
+                Route::get('/', [CartController::class, "index"])->name("index");
+                Route::post('store', [CartController::class, "store"])->name("store");
+            });
+        Route::prefix("order")
+            ->as("order.")
+            ->group(function () {
+                Route::post('/', [OrderController::class, "save"])->name("save");
+            });
     });
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

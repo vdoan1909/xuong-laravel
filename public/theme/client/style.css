@@ -2855,7 +2855,7 @@ a.meanmenu-reveal i {
   text-transform: uppercase;
 }
 
-.cart-total .proceed-to-checkout a {
+.cart-total .proceed-to-checkout button {
   background-color: #3f3f3f;
   border: medium none;
   color: #fff;
@@ -2867,7 +2867,7 @@ a.meanmenu-reveal i {
   padding: 8px 25px;
   text-transform: uppercase;
 }
-.cart-total .proceed-to-checkout a:hover {
+.cart-total .proceed-to-checkout button:hover {
   background-color: #282828;
 }
 

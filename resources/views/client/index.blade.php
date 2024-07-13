@@ -1,6 +1,6 @@
 @extends('client.layout.master')
 
-@section('title', 'Home');
+@section('title', 'Home')
 
 @section('content')
     <div class="product-section section pt-120 pb-120">

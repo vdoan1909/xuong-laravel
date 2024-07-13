@@ -1,6 +1,6 @@
 @extends('client.layout.master')
 
-@section('title', $model->name);
+@section('title', $model->name)
 
 @section('content')
     <div class="page-banner-section section">
@@ -19,7 +19,9 @@
         </div>
     </div>
 
-    <div class="page-section section pt-120 pb-120">
+    <form class="page-section section pt-120 pb-120" action="{{ route('client.cart.store') }}" method="post">
+        @csrf
+        <input type="hidden" name="product_id" value="{{ $model->id }}">
         <div class="container">
             <div class="row mb-40">
                 <div class="col-md-5 col-sm-6 col-xs-12 mb-40">
@@ -75,28 +77,31 @@
 
                         <div class="product-size section">
                             <h5 class="pd-sub-title">Select Size</h5>
-                            @foreach ($sizes as $key => $size)
-                                <button class="{{ $key == 0 ? 'active' : '' }}">
-                                    {{ $size->name }}
-                                </button>
+                            @foreach ($sizes as $sizeKey => $size)
+                                <input type="radio" name="product_size_id" value="{{ $size->id }}"
+                                    {{ $sizeKey == 0 ? 'checked' : '' }}>
+                                <label>{{ $size->name }}</label>
                             @endforeach
                         </div>
 
                         <div class="color-list section">
                             <h5 class="pd-sub-title">Select Color</h5>
-                            @foreach ($colors as $key => $color)
-                                <button class="{{ $key == 0 ? 'active' : '' }}"
-                                    style="background-color: {{ $color->name }};">
-                                    <i class="fa fa-check"></i>
-                                </button>
+                            @foreach ($colors as $colorKey => $color)
+                                <div class="d-flex gap-2 mb-2">
+                                    <input type="radio" name="product_color_id" value="{{ $color->id }}"
+                                        {{ $colorKey == 0 ? 'checked' : '' }}>
+                                    <div
+                                        style="background-color: {{ $color->name }};  width: 30px; height: 30px; border-radius: 50%;">
+                                    </div>
+                                </div>
                             @endforeach
                         </div>
 
                         <div class="quantity-cart section">
                             <div class="product-quantity">
-                                <input type="text" value="0" name="quantity">
+                                <input type="number" name="quantity" value="1">
                             </div>
-                            <button class="add-to-cart">add to cart</button>
+                            <button class="add-to-cart" type="submit">add to cart</button>
                         </div>
                     </div>
                 </div>
@@ -109,11 +114,11 @@
                 <div class="tab-content col-xs-12">
                     <div class="pro-info-tab tab-pane active" id="more-info">
                         <p>
-                            {{$model->material}}
+                            {{ $model->material }}
                         </p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 @endsection
